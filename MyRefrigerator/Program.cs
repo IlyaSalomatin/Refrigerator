@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace MyRefrigerator
 {
@@ -10,8 +12,18 @@ namespace MyRefrigerator
     {
         static void Main(string[] args)
         {
-
+            BinaryFormatter bf = new BinaryFormatter();
             Refrigerator myRef = new Refrigerator("Донбасс");
+            string path = @"E:\программирование\works\MyRefrigerator\MyRefrigerator\bin\Debug\frig.dat";
+            
+            if (File.Exists(path))
+            {
+                using (FileStream fs = new FileStream("frig.dat", FileMode.Open))
+                {
+                     myRef = (Refrigerator)bf.Deserialize(fs);
+                }
+            }
+
             while (true)
             {
                 Console.Clear();
@@ -25,6 +37,7 @@ namespace MyRefrigerator
                 Console.WriteLine("6 - Холодильное отделение - понижение температуры.");
                 Console.WriteLine("7 - Морозильное отделение - повышение температуры.");
                 Console.WriteLine("8 - Морозильное отделение - понижение температуры.");
+                Console.WriteLine("s - Сохранить настройки");
                 Console.WriteLine("0 - Выйти");
 
                 char key = Console.ReadKey().KeyChar;
@@ -54,8 +67,15 @@ namespace MyRefrigerator
                     case '8':
                         myRef.IncTemperatureFreezer();
                         break;
+                    case 's':
+                        using (FileStream fs = new FileStream("frig.dat", FileMode.OpenOrCreate))
+                        {
+                            bf.Serialize(fs, myRef);
+                        }
+                        break;
                     
                     case '0':
+                        
                         return;
                 }
             }
@@ -70,3 +90,9 @@ namespace MyRefrigerator
         }
     }
 }
+/*Задание №1. Сериализация (Lec. 15)
+В задании про эмулятор работы холодильника (Занятие №05. C#. Объектная модель, Задание №5. ООП)
+добавьте следующий функционал: программа должна сохранять все введенные данные при выходе из 
+программы посредством соответствующего пункта меню “Выход”. При запуске программа должна
+проверять наличие файла с данными и загружать их автоматически, если существует файл, созданный в предыдущем сеансе работы.
+Сохранение данных должно быть реализовано с использованием механизма сериализации.*/
